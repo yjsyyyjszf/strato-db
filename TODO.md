@@ -53,15 +53,19 @@
 
 ### Important
 
-- FTS5 support for text searching
-  - Real columns marked `textSearch: true|string|object` generate a FTS5 index
-  - one index per textSearch value ("tag")
+- FTS5 support for text searching on columns
   - It uses the table as a backing table
-  - FTS options can be passed as an object with `tag` for the textSearch value
-  - Searching passes the search argument to the tagged FTS5 index limited to the column
-  - Changes are applied by JM, not triggers. Generating
-    The tags are there to allow multilingual searching. Another column should be added to allow searching all columns in the tagged index.
-    Need to come up with nicer configuration keys. Also something for custom tokenizing
+  - Real columns marked `fts: true|object` generate a FTS5 index
+    - `true` is shorthand for `{group: 'all', allColumns: false}`
+    - `group` is a name for the index so you can group columns in separate indexes, for example by language
+    - `allColumns`, if true, means to search all columns for this group. This can be used on non-real columns
+    - Content columns have to be real columns, otherwise FTS5 can't refer to them. So, throw an error if the column not real except if `allColumns: true`.
+    - `textSearch: true` should be deprecated and means `fts: {group: 'all'}` if `real: true`
+    - other options could be added to configure tokenizing
+  - one index per `fts.group` value (, defaults to `'all'`)
+  - Searching passes the search argument to the FTS5 index of the group
+    - The search is limited to the column unless `allColumns: true`
+  - ¿Updates to the FTS index are applied by JsonModel, not triggers? why/why not
 - [ ] columns using the same path should get the same JSON path. There are some edge cases.
 - [ ] falsyBool paging doesn't work because it tries to >= and that fails for null. It should add a "sortable: false" flag
 
