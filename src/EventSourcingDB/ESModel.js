@@ -99,12 +99,14 @@ class ESModel extends JsonModel {
 		})
 		this.dispatch = dispatch
 		this.writable = false
-		const clearMax = () => {
+		this.cache = {}
+		const clearCache = () => {
+			this.cache = {}
 			this._maxId = 0
 		}
-		options.db.on('begin', clearMax)
-		emitter.on('result', clearMax)
-		emitter.on('error', clearMax)
+		options.db.on('begin', clearCache)
+		emitter.on('result', clearCache)
+		emitter.on('error', clearCache)
 	}
 
 	TYPE = `es/${this.name}`
@@ -249,6 +251,12 @@ class ESModel extends JsonModel {
 		return applyResult(this, {...result, esFail: undefined})
 	}
 
+	async get(id, colName = this.idCol) {
+		if (this.writable) return super.get(id, colName)
+		// TODO attach listener to clear cache
+		if (!this.cache || this._cacheV !== (await this.getVersiion))
+			this.cache = {}
+	}
 	/**
 	 * Assigns the object id to the event at the start of the cycle.
 	 * When subclassing ESModel, be sure to call this too (`ESModel.preprocessor(arg)`)
