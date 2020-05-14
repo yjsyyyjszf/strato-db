@@ -683,19 +683,18 @@ class JsonModel {
 	 * @returns {Promise<(object|null)>} - the object if it exists
 	 */
 	get(id, colName = this.idCol) {
-		if (id == null) {
+		if (id == null)
 			return Promise.reject(
 				new Error(`No "${colName}" given for "${this.name}"`)
 			)
-		}
-		if (this.columns[colName]._getSql?.db !== this.db) {
-			const where = this.columns[colName].sql
-			this.columns[colName]._getSql = this.db.prepare(
+		if (this[`_get${colName}Sql`]?.db !== this.db) {
+			const where = this._colSql(colName)
+			this[`_get${colName}Sql`] = this.db.prepare(
 				`SELECT ${this.selectColsSql} FROM ${this.quoted} tbl WHERE ${where} = ?`,
 				`get ${this.name}.${colName}`
 			)
 		}
-		return this.columns[colName]._getSql.get([id]).then(this.toObj)
+		return this[`_get${colName}Sql`].get([id]).then(this.toObj)
 	}
 
 	/**
@@ -716,7 +715,7 @@ class JsonModel {
 				`SELECT ${this.selectColsSql} FROM ${this.quoted} tbl WHERE ${where} IN (SELECT value FROM json_each(?))`,
 				`get ${this.name}.${colName}`
 			)
-			this.columns[colName]._getAllSql = _getAllSql
+			this[`_getAll${colName}Sql`] = _getAllSql
 		}
 		const rows = await _getAllSql.all([JSON.stringify(ids)])
 		const objs = this.toObj(rows)
