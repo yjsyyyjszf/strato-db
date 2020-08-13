@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changes
+
+- Renamed `dispatch()` to `addEvent()` inside the event processing flow. `dispatch()` still works but gives a deprecation warning. The `.dispatch()` method is not affected.
+
 ## 3.1.1
 
 - ESModel - `getNextId()` fix (was returning incorrect values when run inside a subevent)
