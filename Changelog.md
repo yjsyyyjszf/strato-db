@@ -4,7 +4,8 @@
 
 ### Changes
 
-- Renamed `dispatch()` to `addEvent()` inside the event processing flow. `dispatch()` still works but gives a deprecation warning. The `.dispatch()` method is not affected.
+- ESDB: Renamed `dispatch()` to `addEvent()` inside the event processing flow. `dispatch()` still works but gives a deprecation warning. The `.dispatch()` method is not affected.
+- SQLite: added `.runOnceOnOpen()` to register functions that should be run on the open database but shouldn't open the database
 
 ## 3.1.1
 
