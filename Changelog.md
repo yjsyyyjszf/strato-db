@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking
+
+- EventQueue: `.setKnownV()` is now synchronous and no longer returns a Promise
+
 ### Changes
 
 - ESDB: Renamed `dispatch()` to `addEvent()` inside the event processing flow. `dispatch()` still works but gives a deprecation warning. The `.dispatch()` method is not affected.
