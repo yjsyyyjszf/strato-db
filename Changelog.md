@@ -14,6 +14,7 @@ The following is a very insignificant breaking change so doesn't warrant a new m
 - SQLite: added `.runOnceOnOpen()` to register functions that should be run on the open database but shouldn't open the database
 - ESDB: Added `transact({event, model, store, dispatch})` phase to the event processing flow. In this callback, you can call `dispatch` to generate sub-events, and calling ESModel will work too (any model can use the `dispatch` given via the constructor).
   This requires the use of `AsyncLocalStorage`, and thus the minimum NodeJS version is now v12.17
+- ESDB: `dispatch({type, data, ts})` is now also possible
 
 ## 3.1.1
 

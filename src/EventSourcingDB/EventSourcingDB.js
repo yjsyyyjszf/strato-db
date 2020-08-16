@@ -413,7 +413,29 @@ class EventSourcingDB extends EventEmitter {
 		return this._waitingP || Promise.resolve()
 	}
 
+	/**
+	 * @param {string|{type: string, data?: any, ts?: number}} type event type or the entire event
+	 * @param {any} [data] event data, can be anything
+	 * @param {number} [ts] the timestamp of the event
+	 * @returns {Promise<Event>} the processed event
+	 */
 	async dispatch(type, data, ts) {
+		if (type && typeof type === 'object') {
+			if (DEV) {
+				if (data)
+					throw new Error(
+						'dispatch: second argument must not be defined when passing the event as an object'
+					)
+				const {type: _1, data: _2, ts: _3, ...rest} = type
+				if (Object.keys(rest).length)
+					throw new Error(`dispatch: extra key(s) ${Object.keys(rest).join()}`)
+			}
+			data = type.data
+			ts = type.ts
+			type = type.type
+		}
+		if (!type || typeof type !== 'string')
+			throw new Error('dispatch: type is a required string')
 		const event = await this.queue.add(type, data, ts)
 		return this.handledVersion(event.v)
 	}
@@ -847,6 +869,24 @@ class EventSourcingDB extends EventEmitter {
 
 		let lastP = null
 		const dispatch = async (type, data) => {
+			if (type && typeof type === 'object') {
+				if (DEV) {
+					if (data)
+						throw new Error(
+							'dispatch: second argument must not be defined when passing the event as an object'
+						)
+					// We allow ts in sub events but we ignore it
+					const {type: _1, data: _2, ts: _3, ...rest} = type
+					if (Object.keys(rest).length)
+						throw new Error(
+							`dispatch: extra key(s) ${Object.keys(rest).join()}`
+						)
+				}
+				data = type.data
+				type = type.type
+			}
+			if (!type || typeof type !== 'string')
+				throw new Error('dispatch: type is a required string')
 			const subEventP = this._alsDispatch.run(undefined, handleSubEvent, {
 				type,
 				data,
